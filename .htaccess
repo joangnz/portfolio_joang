@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteRule . /index.html [L]
+RewriteRule ^api/(.*)$ src/api.php [L]
