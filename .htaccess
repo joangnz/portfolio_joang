@@ -1,5 +1,14 @@
 RewriteEngine On
+
 RewriteBase /
 RewriteRule ^index\.html$ - [L]
-RewriteRule . /index.html [L]
-RewriteRule ^api/(.*)$ src/api.php [L]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Match /api/anything
+RewriteRule ^api/(.*)$ api.php?endpoint=$1 [QSA,L]
+
+# Match /api exactly
+RewriteRule ^api$ api.php [QSA,L]

@@ -1,36 +1,65 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import './App.css';
 
-import './App.css'
+interface UserData {
+  name: string;
+  role: string;
+  description: string;
+  email: string;
+}
 
 function App() {
-  const [name, setName] = useState<String | null>(null)
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/getCV')
-    .then(res => res.json())
-    .then(setName);
-  })
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data: UserData = await response.json();
+        setUserData(data);
+      } catch (error) {
+        setError('Failed to load user data');
+        console.error('Fetch error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="homepage">
-      <header>
-        <img src="/vite.svg" className="logo" alt="Logo" />
-        <h1>{name}</h1>
-        <p>Web Developer & Designer</p>
+      <header className="homepage__header">
+        <img src="/vite.svg" className="homepage__logo" alt="Logo" />
+        <h1>{userData?.name || 'Name Unavailable'}</h1>
+        <p>{userData?.role || 'Role Unavailable'}</p>
       </header>
-      <nav>
+
+      <nav className="homepage__nav">
         <a href="#about">About</a>
         <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
       </nav>
-      <main>
-        <section id="about">
+
+      <main className="homepage__main">
+        <section id="about" className="homepage__section">
           <h2>About Me</h2>
-          <p>
-            Welcome! I'm a passionate web developer specializing in building modern, responsive web applications with React, TypeScript, and more.
-          </p>
+          <p>{userData?.description || 'No description available.'}</p>
         </section>
-        <section id="projects">
+
+        <section id="projects" className="homepage__section">
           <h2>Projects</h2>
           <ul>
             <li>
@@ -41,15 +70,16 @@ function App() {
             </li>
           </ul>
         </section>
-        <section id="contact">
+
+        <section id="contact" className="homepage__section">
           <h2>Contact</h2>
           <p>
-            Email: <a href="mailto:your.email@example.com">your.email@example.com</a>
+            Email: <a href={`mailto:${userData?.email}`}>{userData?.email}</a>
           </p>
         </section>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
